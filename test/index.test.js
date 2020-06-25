@@ -17,7 +17,7 @@ async function generateSW(dir) {
 // Remove generated files during the test execution
 function cleanAfterTest(dir) {
   const swPath = `./${dir}/sw.js`;
-  //fs.unlinkSync(swPath);
+  fs.unlinkSync(swPath);
 }
 
 // Test two arrays are equivalent
