@@ -6,11 +6,15 @@ import { blueBright, green, red } from 'colorette';
 process.chdir(__dirname);
 
 // Init the plugin and execute it's functionality
-async function generateSW(dir) {
-  const plugin = serviceWorker({
+async function generateSW(dir, config) {
+  const defaultConfig = {
     dir: dir,
     swName: 'sw.js',
     verbose: false,
+  };
+  const plugin = serviceWorker({
+    ...defaultConfig,
+    ...config,
   });
   await plugin.writeBundle();
 }
@@ -38,7 +42,7 @@ function isEquivalent(a, b) {
 
 // Perform the test routine for the given directory
 async function performTest(test) {
-  await generateSW(test.dir);
+  await generateSW(test.dir, test.config);
   const serviceWorker = fs.readFileSync(`./${test.dir}/sw.js`, 'utf8');
   const valueRegex = /const filesToCache = \[[\s\S]*\]/gs;
   const strRegex = /"(.)*"/g;
@@ -47,7 +51,7 @@ async function performTest(test) {
     .match(strRegex)
     .map(it => it.replace(/"/g, ''));
   if (isEquivalent(result, test.assert)) {
-    console.log(blueBright(`Test ${test.dir}: `) + green('[OK]'));
+    console.log(blueBright(`Test ${test.name}: `) + green('[OK]'));
   } else {
     console.log(
       blueBright(`Test ${test.dir}: `) +
@@ -60,10 +64,12 @@ async function performTest(test) {
 // All test to perform
 const testList = [
   {
+    name: 'SimpleDir',
     dir: 'simpleDir',
     assert: ['/', '/sw.js', '/text.txt', '/style.css', '/script.js'],
   },
   {
+    name: 'NestedDir',
     dir: 'nestedDir',
     assert: [
       '/',
@@ -74,8 +80,25 @@ const testList = [
       '/nested/nested/nested/file',
     ],
   },
+  {
+    name: 'ManualPath',
+    dir: 'simpleDir',
+    config: {
+      manualPaths: [
+        'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
+      ],
+    },
+    assert: [
+      '/',
+      '/sw.js',
+      '/text.txt',
+      '/style.css',
+      '/script.js',
+      'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
+    ],
+  },
 ];
 
-for (const dir of testList) {
-  performTest(dir);
+for (const test of testList) {
+  performTest(test);
 }
