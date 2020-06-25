@@ -1,0 +1,34 @@
+{
+  "name": "rollup-plugin-offline-sw",
+  "description": "A rollup plugin to generate service worker script for online access of your static website",
+  "version": "0.0.1",
+  "repository": "Virgiel/rollup-plugin-offline-sw",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "npm run build && node -r esm test/index.test.js"
+  },
+  "dependencies": {
+    "colorette": "^1.2.0",
+    "globby": "^11.0.1"
+  },
+  "devDependencies": {
+    "esm": "^3.2.25",
+    "rollup": "2.18.0",
+    "rollup-plugin-auto-external": "^2.0.0"
+  },
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
+  "keywords": [
+    "rollup",
+    "rollup-plugin",
+    "offline",
+    "sw",
+    "service-worker"
+  ],
+  "license": "Unlicense"
+}
