@@ -6,14 +6,34 @@ A rollup plugin to generate service worker script for online access of your stat
 
 ## Installation
 
-```
-TODO
+```json
+// package.json
+{
+  "devDependencies": {
+    "rollup-plugin-offline-sw": "git+https://git@github.com/Virgiel/rollup-plugin-offline-sw.git"
+  }
+}
 ```
 
 ## Usage
 
-```
-TODO
+```js
+// rollup.config.js
+import serviceWorker from 'rollup-plugin-offline-sw';
+
+export default {
+  input: 'src/index.js',
+  output: {
+    file: 'dist/app.js',
+    format: 'cjs',
+  },
+  plugins: [
+    serviceWorker({
+        dir = './dist',
+        swName = 'service-worker.js'
+    }),
+  ],
+};
 ```
 
 ### Events
@@ -27,9 +47,27 @@ The service worker emits events in a broadcast channel named `sw-channel`. Those
 
 For hot reloading to work properly it is recommended to activate "Update on reload" and "Bypass for network" in DevTools > Application > Service Workers.
 
-## Options
+## Configuration
 
-TODO
+### dir
+
+Type: `string` | Default: `'./public'`
+Path to the root directory of the website
+
+### swName
+
+Type: `string` | Default: `'sw.js'`
+The name of the service worker file.
+
+### manualPaths
+
+Type: `Array<string>` | Default: `[]`
+Array of path to prefect. Useful for http request that can't be found by the plugin.
+
+### verbose
+
+Type: `boolean` | Default: `true`
+Outputs prefetch sizes to the console.
 
 ## Licence
 
