@@ -2,11 +2,11 @@
 
 A rollup plugin to generate service worker script for online access of your static website
 
-**Disclaimer: This project is intended for my personal usage. If you need a well-tested solution with more features take a look at [Workbox](https://github.com/GoogleChrome/workbox). But if you want to experiments with service workers you are free to use and copy my code.**
+**Disclaimer: This project is intended for my personal usage. If you need a well-tested solution with more features take a look at [Workbox](https://github.com/GoogleChrome/workbox). But if you want to experiment with service workers you are free to use and copy my code.**
 
 ## Installation
 
-```json
+```yaml
 // package.json
 {
   "devDependencies": {
@@ -24,15 +24,10 @@ import serviceWorker from 'rollup-plugin-offline-sw';
 export default {
   input: 'src/index.js',
   output: {
-    file: 'dist/app.js',
+    file: 'public/bundle.js',
     format: 'cjs',
   },
-  plugins: [
-    serviceWorker({
-        dir = './dist',
-        swName = 'service-worker.js'
-    }),
-  ],
+  plugins: [serviceWorker()],
 };
 ```
 
@@ -40,8 +35,8 @@ export default {
 
 The service worker emits events in a broadcast channel named `sw-channel`. Those events are :
 
-- Installed : Triggered when the service worker is installed for the first time.
-- Updated : Triggered when the service worker have been updated and await page reload.
+- `Installed` : Triggered when the service worker is installed for the first time.
+- `Updated` : Triggered when the service worker have been updated and await page reload.
 
 ### Hot reload
 
@@ -49,24 +44,28 @@ For hot reloading to work properly it is recommended to activate "Update on relo
 
 ## Configuration
 
-### dir
+#### dir
 
-Type: `string` | Default: `'./public'`
+Type: `string` • Default: `'./public'`
+
 Path to the root directory of the website
 
-### swName
+#### swName
 
-Type: `string` | Default: `'sw.js'`
+Type: `string` • Default: `'sw.js'`
+
 The name of the service worker file.
 
-### manualPaths
+#### manualPaths
 
-Type: `Array<string>` | Default: `[]`
-Array of path to prefect. Useful for http request that can't be found by the plugin.
+Type: `Array<string>` • Default: `[]`
 
-### verbose
+Array of path to prefect. Useful for http requests that can't be found by the plugin.
 
-Type: `boolean` | Default: `true`
+#### verbose
+
+Type: `boolean` • Default: `true`
+
 Outputs prefetch sizes to the console.
 
 ## Licence
