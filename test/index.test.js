@@ -10,6 +10,7 @@ async function generateSW(dir) {
   const plugin = serviceWorker({
     dir: dir,
     swName: 'sw.js',
+    verbose: false,
   });
   await plugin.writeBundle();
 }
@@ -46,11 +47,11 @@ async function performTest(test) {
     .match(strRegex)
     .map(it => it.replace(/"/g, ''));
   if (isEquivalent(result, test.assert)) {
-    console.log(blueBright(`Test ${test.dir}: `) + green('[OK]\n'));
+    console.log(blueBright(`Test ${test.dir}: `) + green('[OK]'));
   } else {
     console.log(
       blueBright(`Test ${test.dir}: `) +
-        red(`[Err]\nExpected: ${test.assert}\nGot instead: ${result}\n`)
+        red(`[Err]\nExpected: ${test.assert}\nGot instead: ${result}`)
     );
   }
   await cleanAfterTest(test.dir);
