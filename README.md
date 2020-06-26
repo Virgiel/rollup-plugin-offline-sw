@@ -10,7 +10,7 @@ A rollup plugin to generate service worker script for online access of your stat
 // package.json
 {
   "devDependencies": {
-    "rollup-plugin-offline-sw": "git+https://git@github.com/Virgiel/rollup-plugin-offline-sw.git"
+    "rollup-plugin-offline-sw": "git+https://git@github.com/Virgiel/rollup-plugin-offline-sw.git#0.1.0"
   }
 }
 ```
