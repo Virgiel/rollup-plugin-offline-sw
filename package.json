@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-offline-sw",
-  "description": "A rollup plugin to generate service worker script for online access of your static website",
+  "description": "A rollup plugin to generate service worker script for offline access of your static website",
   "version": "0.1.0",
   "repository": "Virgiel/rollup-plugin-offline-sw",
   "main": "lib/index.cjs.js",

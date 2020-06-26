@@ -1,6 +1,6 @@
 # rollup-plugin-offline-sw
 
-A rollup plugin to generate service worker script for online access of your static website
+A rollup plugin to generate service worker script for offline access of your static website
 
 **Disclaimer: This project is intended for my personal usage. If you need a well-tested solution with more features take a look at [Workbox](https://github.com/GoogleChrome/workbox). But if you want to experiment with service workers you are free to use and copy my code.**
 
