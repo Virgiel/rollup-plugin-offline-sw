@@ -10,7 +10,9 @@ async function generateSW(dir, config) {
   const defaultConfig = {
     dir: dir,
     swName: 'sw.js',
-    verbose: false,
+    verbose: true,
+    showRulesPaths: true,
+    showPrefetchPaths: true
   };
   const plugin = serviceWorker({
     ...defaultConfig,

@@ -10,8 +10,14 @@ interface ServiceWorkerOptions {
   /** Array of path to prefect. Useful for http request that can't be found by the plugin. @default [] */
   readonly manualPaths?: Array<string>;
 
-  /** Outputs prefetch sizes to the console. @default true  */
+  /** Outputs generation infos in the console. @default true  */
   readonly verbose?: boolean;
+
+  /** Add the list of paths affected by each rules to generation infos. @default false */
+  readonly showRulesPaths?: boolean;
+
+  /** Add the list of prefetched paths to generation infos. @default false */
+  readonly showPrefetchPaths?: boolean;
 }
 
 /** Generate a service worker script to precache the root directory  */

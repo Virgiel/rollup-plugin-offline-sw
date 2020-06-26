@@ -1,31 +1,19 @@
 import fs from 'fs';
 import globby from 'globby';
-import { blueBright, bold, green, yellow } from 'colorette';
+import { blueBright, bold, green, yellow, magenta } from 'colorette';
 
 const rules = [
   {
-    name: 'Image',
-    types: ['png', 'jpg'],
+    name: 'Website',
+    types: ['js', 'css', 'html'],
   },
   {
-    name: 'Icons',
-    types: ['svg'],
+    name: 'Assets',
+    types: ['png', 'jpg', 'svg'],
   },
   {
-    name: 'Script',
-    types: ['js'],
-  },
-  {
-    name: 'Style',
-    types: ['css'],
-  },
-  {
-    name: 'Html',
-    types: ['html'],
-  },
-  {
-    name: 'Data',
-    types: ['txt', 'json', 'yaml'],
+    name: 'Other',
+    types: ['*'],
   },
 ];
 
@@ -46,6 +34,16 @@ function formatBytesHuman(bytes) {
 function extractExtension(path) {
   var dotIndex = path.lastIndexOf('.');
   return dotIndex == -1 ? null : path.substring(dotIndex + 1);
+}
+
+/** Check if rule apply on extension */
+function rulesMatchExtension(rule, extension) {
+  for (const type of rule.types) {
+    if (type === extension || type === '*') {
+      return true;
+    }
+  }
+  return false;
 }
 
 /** Generate a JavaScript file with data for the service worker */
@@ -144,39 +142,44 @@ export default function serviceWorker(options = {}) {
     swName = 'sw.js',
     manualPaths = [],
     verbose = true,
+    showRulesPaths = false,
+    showPrefetchPaths = false,
   } = options;
 
   return {
     name: 'serviceWorker',
     async writeBundle() {
-      // Get all files in src
-      const paths = await globby(dir + '/**/*');
-      // Sum prefetch size
-      const rulesSum = new Array(rules.length).fill(0);
-      let sum = 0;
-      if (verbose) {
-        for (const path of paths) {
-          const size = fs.statSync(path).size;
-          const extension = extractExtension(path);
-          for (let i = 0; i < rules.length; i++) {
-            if (rules[i].types.indexOf(extension) != -1) {
-              rulesSum[i] += size;
-            }
+      // Get the relative path of all files in dir
+      let paths = (await globby(dir + '/**/*')).map(path =>
+        path.substring(dir.length)
+      );
+
+      // Apply rules
+      const rulesResult = rules.map(rule => ({
+        ...rule,
+        paths: [],
+        sizeSum: 0,
+      }));
+      for (const path of paths) {
+        const size = fs.statSync(dir + path).size;
+        const extension = extractExtension(path);
+        for (const rule of rulesResult) {
+          if (rulesMatchExtension(rule, extension)) {
+            rule.paths.push(path);
+            rule.sizeSum += size;
+            break;
           }
-          sum += size;
         }
       }
-      // Make path relative to dir
-      const relativePaths = paths.map(path => path.replace(dir, ''));
       // Add manual path and src path
-      const finalPaths = ['/'].concat(relativePaths, manualPaths);
-      if (finalPaths.indexOf(`/${swName}`) == -1) {
-        finalPaths.push(`/${swName}`);
+      if (paths.indexOf(`/${swName}`) == -1) {
+        paths.push(`/${swName}`);
       }
+      paths = ['/'].concat(paths, manualPaths);
 
       // Generate service worker data
       const date = Date.now();
-      const generatedData = generateSWDataJS(date, finalPaths);
+      const generatedData = generateSWDataJS(date, paths);
 
       // Write the service worker data file
       const swSrc = `${dir}/${swName}`;
@@ -185,21 +188,28 @@ export default function serviceWorker(options = {}) {
       // Output generation result
       if (verbose) {
         console.log(blueBright(bold('Service Worker:')));
-        for (let [i, rule] of rules.entries()) {
-          const temp = rulesSum[i];
-          if (temp > 0) {
+        for (const rule of rulesResult) {
+          if (rule.paths.length > 0) {
             console.log(
-              `${green(rule.name)} - ${yellow(bold(formatBytesHuman(temp)))}`
+              magenta(rule.name) +
+                ' - ' +
+                green(bold(rule.paths.length) + ' files') +
+                ' - ' +
+                yellow(bold(formatBytesHuman(rule.sizeSum)))
             );
+            if (showRulesPaths) {
+              for (const path of rule.paths) {
+                console.log(' ' + path);
+              }
+            }
           }
         }
-        console.log(
-          green(
-            `${bold(finalPaths.length)} prefetched path for a total of ${yellow(
-              bold(formatBytesHuman(sum))
-            )}`
-          )
-        );
+        console.log(green(bold(paths.length) + ' prefetched path in total'));
+        if (showPrefetchPaths) {
+          for (const path of paths) {
+            console.log(' ' + path);
+          }
+        }
       }
     },
   };

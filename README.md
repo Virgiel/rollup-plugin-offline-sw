@@ -68,13 +68,23 @@ Type: `boolean` • Default: `true`
 
 Outputs prefetch sizes to the console.
 
+#### showRulesPaths
+
+Type: `boolean` • Default: `false`
+
+Add the list of paths affected by each rules to generation infos.
+
+#### showPrefetchPaths
+
+Type: `boolean` • Default: `false`
+
+Add the list of prefetched paths to generation infos.
+
 ## TODO
 
 This is a list of features I might add if I find the time and/or my projects require them
 
-- Add fallback rules for non handled files
 - Configurable prefetch rules with a size limit
-- More verbose output with path list for each rule
 - Different fetching and caching strategy?
 - Runtime rules?
 
