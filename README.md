@@ -10,7 +10,7 @@ A rollup plugin to generate service worker script for offline access of your sta
 // package.json
 {
   "devDependencies": {
-    "rollup-plugin-offline-sw": "git+https://git@github.com/Virgiel/rollup-plugin-offline-sw.git#0.1.0"
+    "rollup-plugin-offline-sw": "git+https://git@github.com/Virgiel/rollup-plugin-offline-sw.git#v0.2.0"
   }
 }
 ```
@@ -66,7 +66,7 @@ Array of path to prefect. Useful for http requests that can't be found by the pl
 
 Type: `boolean` • Default: `true`
 
-Outputs prefetch sizes to the console.
+Outputs generation infos in the console.
 
 #### showRulesPaths
 
