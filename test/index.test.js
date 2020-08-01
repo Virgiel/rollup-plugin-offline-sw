@@ -1,6 +1,10 @@
 import serviceWorker from '../src/index';
 import fs from 'fs';
 import { blueBright, green, red } from 'colorette';
+import { test } from 'uvu';
+import * as assert from 'uvu/assert';
+
+const VERBOSE = false;
 
 // Relocate test process in the test dir
 process.chdir(__dirname);
@@ -10,9 +14,9 @@ async function generateSW(dir, config) {
   const defaultConfig = {
     dir: dir,
     swName: 'sw.js',
-    verbose: true,
+    verbose: VERBOSE,
     showRulesPaths: true,
-    showPrefetchPaths: true
+    showPrefetchPaths: true,
   };
   const plugin = serviceWorker({
     ...defaultConfig,
@@ -52,26 +56,21 @@ async function performTest(test) {
     .match(valueRegex)[0]
     .match(strRegex)
     .map(it => it.replace(/"/g, ''));
-  if (isEquivalent(result, test.assert)) {
-    console.log(blueBright(`Test ${test.name}: `) + green('[OK]'));
-  } else {
-    console.log(
-      blueBright(`Test ${test.dir}: `) +
-        red(`[Err]\nExpected: ${test.assert}\nGot instead: ${result}`)
-    );
-  }
+  assert.ok(
+    isEquivalent(result, test.assert),
+    red(`[Err]\nExpected: ${test.assert}\nGot instead: ${result}`)
+  );
   await cleanAfterTest(test.dir);
 }
 
 // All test to perform
-const testList = [
-  {
-    name: 'SimpleDir',
+test('SimpleDir', () =>
+  performTest({
     dir: 'simpleDir',
     assert: ['/', '/sw.js', '/text.txt', '/style.css', '/script.js'],
-  },
-  {
-    name: 'NestedDir',
+  }));
+test('NestedDir', () =>
+  performTest({
     dir: 'nestedDir',
     assert: [
       '/',
@@ -81,9 +80,9 @@ const testList = [
       '/nested/nested/file',
       '/nested/nested/nested/file',
     ],
-  },
-  {
-    name: 'ManualPath',
+  }));
+test('ManualPath', () =>
+  performTest({
     dir: 'simpleDir',
     config: {
       manualPaths: [
@@ -98,9 +97,6 @@ const testList = [
       '/script.js',
       'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
     ],
-  },
-];
+  }));
 
-for (const test of testList) {
-  performTest(test);
-}
+test.run();
