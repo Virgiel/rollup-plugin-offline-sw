@@ -7,6 +7,9 @@ interface ServiceWorkerOptions {
   /** The name of the service worker file. @default 'sw.js' */
   readonly swName?: string;
 
+  /** If in dev mode a dummy service worker file will be generated. @default false */
+  readonly dev?: boolean;
+
   /** Array of path to prefect. Useful for http request that can't be found by the plugin. @default [] */
   readonly manualPaths?: Array<string>;
 
