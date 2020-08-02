@@ -1,6 +1,6 @@
-import serviceWorker from '../src/index';
+import serviceWorker from '../index';
 import fs from 'fs';
-import { blueBright, green, red } from 'colorette';
+import { red } from 'colorette';
 import { test } from 'uvu';
 import * as assert from 'uvu/assert';
 

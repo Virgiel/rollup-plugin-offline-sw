@@ -3,27 +3,43 @@
   "description": "A rollup plugin to generate service worker script for offline access of your static website",
   "version": "0.2.1",
   "repository": "Virgiel/rollup-plugin-offline-sw",
-  "main": "lib/index.cjs.js",
-  "module": "lib/index.esm.js",
-  "types": "./index.d.ts",
+  "module": "lib/index.mjs",
+  "main": "lib/index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./lib/index.js",
+      "import": "./lib/index.mjs"
+    },
+    "./manager": {
+      "require": "./manager/index.js",
+      "import": "./manager/index.mjs"
+    }
+  },
   "scripts": {
-    "build": "rollup -c",
-    "test": "npm run build && node -r esm test/index.test.js"
+    "build": "bundt",
+    "test": "node -r esm test/index.test.js"
   },
   "dependencies": {
     "colorette": "^1.2.0",
     "globby": "^11.0.1"
   },
   "devDependencies": {
+    "rollup": "2.22.1",
     "esm": "^3.2.25",
-    "rollup": "2.18.0",
-    "rollup-plugin-auto-external": "^2.0.0",
-    "uvu": "^0.3.1"
+    "uvu": "^0.3.1",
+    "bundt": "1.0.2"
   },
   "files": [
     "lib",
-    "index.d.ts"
+    "src",
+    "index.d.ts",
+    "manager.d.ts"
   ],
+  "modes": {
+    "manager": "src/manager.js",
+    "default": "src/index.js"
+  },
   "keywords": [
     "rollup",
     "rollup-plugin",
