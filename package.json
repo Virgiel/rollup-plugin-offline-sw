@@ -1,7 +1,7 @@
 {
   "name": "rollup-plugin-offline-sw",
   "description": "A rollup plugin to generate service worker script for offline access of your static website",
-  "version": "0.2.1",
+  "version": "0.3.0-alpha.0",
   "repository": "Virgiel/rollup-plugin-offline-sw",
   "module": "lib/index.mjs",
   "main": "lib/index.js",
@@ -32,7 +32,7 @@
   },
   "files": [
     "lib",
-    "src",
+    "manager",
     "index.d.ts",
     "manager.d.ts"
   ],
