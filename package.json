@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "bundt",
-    "test": "node -r esm test/index.test.js"
+    "test": "npm run build && node -r esm test/index.test.js"
   },
   "dependencies": {
     "colorette": "^1.2.0",

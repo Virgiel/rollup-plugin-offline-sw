@@ -1,4 +1,4 @@
-import serviceWorker from '../index';
+import serviceWorker from '../lib/index';
 import fs from 'fs';
 import { red } from 'colorette';
 import { test } from 'uvu';
