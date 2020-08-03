@@ -26,11 +26,14 @@ class SwManager {
         this.registration = registration;
 
         if (isInitialization) {
-          // Listen to activation and notify for initialization
-          if (registration.active.state == 'activated') {
+          const serviceWorker =
+            registration.installing != null
+              ? registration.installing
+              : registration.active;
+          if (serviceWorker.state == 'activated') {
             this.onEvent(INITIALIZED);
           } else {
-            registration.active.addEventListener('statechange', () => {
+            serviceWorker.addEventListener('statechange', () => {
               if (event.target.state == 'activated') {
                 this.onEvent(INITIALIZED);
               }
