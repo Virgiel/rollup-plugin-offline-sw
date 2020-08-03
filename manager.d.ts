@@ -1,4 +1,4 @@
-export const INITIALIZED: boolean;
+export const INITIALIZED: string;
 export const WAITING: string;
 export const UPDATED: string;
 

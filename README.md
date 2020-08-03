@@ -21,6 +21,8 @@ experiment with service workers you are free to use and copy my code.**
 
 ## Usage
 
+### Rollup Plugin
+
 ```js
 // rollup.config.js
 import serviceWorker from 'rollup-plugin-offline-sw';
@@ -35,15 +37,45 @@ export default {
 };
 ```
 
-### Events
+### Service Worker Manager
 
-The service worker emits events in a broadcast channel named `sw-channel`. Those
-events are :
+It's a good design to inform users of the current service worker state, however
+this state is tricky to observe. The SwManager handle service worker
+registration and observation while exposing an easy to use API with three
+events.
 
-- `Installed` : Triggered when the service worker is installed for the first
-  time.
-- `Updated` : Triggered when the service worker have been updated and await page
-  reload.
+#### Events
+
+- `initialized`: Service worker is installed for the first time.
+- `waiting`: A new service worker is available but it's waiting for activation.
+- `updated`: A new service worker is now active, the content need to be
+  refreshed.
+
+#### Exemple
+
+```js
+import {
+  SwManager,
+  INITIALIZED,
+  WAITING,
+  UPDATED,
+} from 'rollup-plugin-offline-sw/manager';
+
+manager.onEvent = event => {
+  if (event === INITIALIZED) {
+    console.log('The website is now accessible offline');
+  } else if (event === WAITING) {
+    // If there are losable states (e.g forms) it's a good practice to
+    // prompt a dialog to let the user choose when to skip waiting state
+    manager.skipWaiting();
+    status = WAITING;
+  } else if (event === UPDATED) {
+    window.location.reload(false);
+  }
+};
+
+manager.register('/sw.js');
+```
 
 ## Configuration
 
@@ -69,26 +101,37 @@ If in dev mode a dummy service worker file will be generated.
 
 Type: `Array<string>` • Default: `[]`
 
-Array of path to prefect. Useful for http requests that can't be found by the
-plugin.
+Paths to prefetch, useful for http request that can't be found by the plugin.
+
+#### prefetchExtensions
+
+Type: `Array<string>` • Default: `['js','css','html','svg']`
+
+Files extensions to prefetch.
+
+#### runtimeTypes
+
+Type: `Array<RegExp>` • Default: `[/^font\//]`
+
+Content-type's regex to filter fetch response to cache at runtime.
 
 #### verbose
 
 Type: `boolean` • Default: `true`
 
-Outputs generation infos in the console.
+Output generation infos in the console.
 
-#### showRulesPaths
-
-Type: `boolean` • Default: `false`
-
-Add the list of paths affected by each rules to generation infos.
-
-#### showPrefetchPaths
+#### showPrefetchedPaths
 
 Type: `boolean` • Default: `false`
 
 Add the list of prefetched paths to generation infos.
+
+#### showIgnoredPaths
+
+Type: `boolean` • Default: `false`
+
+Add the list of ignored paths to generation infos.
 
 ## TODO
 
@@ -96,8 +139,8 @@ This is a list of features I might add if I find the time and/or my projects
 require them
 
 - Configurable prefetch rules with a size limit
-- Different fetching and caching strategy?
-- Runtime rules?
+- Different fetching and caching strategy
+- Runtime fetch cache with size limit
 
 ## Licence
 

@@ -57,7 +57,7 @@ async function performTest(test) {
   // Extract and check service worker results
   if (test.assert) {
     const serviceWorker = fs.readFileSync(`./${test.dir}/sw.js`, 'utf8');
-    const valueRegex = /const filesToCache = \[[\s\S]*?\]/;
+    const valueRegex = /const pathsToCache = \[[\s\S]*?\]/;
     const strRegex = /"(.)*"/g;
     const result = serviceWorker
       .match(valueRegex)[0]
@@ -126,7 +126,7 @@ test('MixedPath full', () =>
   performTest({
     dir: 'mixedDir',
     config: {
-      prefetchTypes: ['*'],
+      prefetchExtensions: ['*'],
     },
     assert: [
       '/',
@@ -142,7 +142,7 @@ test('MixedPath none', () =>
   performTest({
     dir: 'mixedDir',
     config: {
-      prefetchTypes: [],
+      prefetchExtensions: [],
     },
     assert: ['/', '/sw.js'],
   }));
