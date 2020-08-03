@@ -4,8 +4,6 @@ import { red } from 'colorette';
 import { test } from 'uvu';
 import * as assert from 'uvu/assert';
 
-const VERBOSE = false;
-
 // Relocate test process in the test dir
 process.chdir(__dirname);
 
@@ -14,9 +12,6 @@ async function generateSW(dir, config) {
   const defaultConfig = {
     dir: dir,
     swName: 'sw.js',
-    verbose: VERBOSE,
-    showRulesPaths: true,
-    showPrefetchPaths: true,
   };
   const plugin = serviceWorker({
     ...defaultConfig,
@@ -48,26 +43,46 @@ function isEquivalent(a, b) {
 
 // Perform the test routine for the given directory
 async function performTest(test) {
-  await generateSW(test.dir, test.config);
-  const serviceWorker = fs.readFileSync(`./${test.dir}/sw.js`, 'utf8');
-  const valueRegex = /const filesToCache = \[[\s\S]*\]/gs;
-  const strRegex = /"(.)*"/g;
-  const result = serviceWorker
-    .match(valueRegex)[0]
-    .match(strRegex)
-    .map(it => it.replace(/"/g, ''));
-  assert.ok(
-    isEquivalent(result, test.assert),
-    red(`[Err]\nExpected: ${test.assert}\nGot instead: ${result}`)
-  );
+  // Invoke plugin and intercept logs
+  let logs = '';
+  {
+    const oldLog = console.log;
+    console.log = data => {
+      logs += data + '\n';
+    };
+    await generateSW(test.dir, test.config);
+    console.log = oldLog;
+  }
+
+  // Extract and check service worker results
+  if (test.assert) {
+    const serviceWorker = fs.readFileSync(`./${test.dir}/sw.js`, 'utf8');
+    const valueRegex = /const filesToCache = \[[\s\S]*?\]/;
+    const strRegex = /"(.)*"/g;
+    const result = serviceWorker
+      .match(valueRegex)[0]
+      .match(strRegex)
+      .map(it => it.replace(/"/g, ''));
+    assert.ok(
+      isEquivalent(result, test.assert),
+      red(`[Err]\nExpected: ${test.assert}\nGot instead: ${result}`)
+    );
+  }
+
+  // Perform logs check
+  if (test.inspectLogs) {
+    assert.ok(test.inspectLogs(logs));
+  }
+
+  // Clean up
   await cleanAfterTest(test.dir);
 }
 
-// All test to perform
+/* ----- Dir extraction test ----- */
 test('SimpleDir', () =>
   performTest({
     dir: 'simpleDir',
-    assert: ['/', '/sw.js', '/text.txt', '/style.css', '/script.js'],
+    assert: ['/', '/sw.js', '/index.html', '/style.css', '/script.js'],
   }));
 test('NestedDir', () =>
   performTest({
@@ -75,12 +90,14 @@ test('NestedDir', () =>
     assert: [
       '/',
       '/sw.js',
-      '/file',
-      '/nested/file',
-      '/nested/nested/file',
-      '/nested/nested/nested/file',
+      '/file.html',
+      '/nested/file.html',
+      '/nested/nested/file.html',
+      '/nested/nested/nested/file.html',
     ],
   }));
+
+/* ---- Manual path config est ----- */
 test('ManualPath', () =>
   performTest({
     dir: 'simpleDir',
@@ -92,11 +109,76 @@ test('ManualPath', () =>
     assert: [
       '/',
       '/sw.js',
-      '/text.txt',
+      '/index.html',
       '/style.css',
       '/script.js',
       'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
     ],
+  }));
+
+/* ---- Filter prefetch paths test ----- */
+test('MixedPath default', () =>
+  performTest({
+    dir: 'mixedDir',
+    assert: ['/', '/index.html', '/style.css', '/script.js', '/sw.js'],
+  }));
+test('MixedPath full', () =>
+  performTest({
+    dir: 'mixedDir',
+    config: {
+      prefetchTypes: ['*'],
+    },
+    assert: [
+      '/',
+      '/data.json',
+      '/index.html',
+      '/style.css',
+      '/script.js',
+      '/text.txt',
+      '/sw.js',
+    ],
+  }));
+test('MixedPath none', () =>
+  performTest({
+    dir: 'mixedDir',
+    config: {
+      prefetchTypes: [],
+    },
+    assert: ['/', '/sw.js'],
+  }));
+
+/* ----- Verbose output test ----- */
+test('Verbose', () =>
+  performTest({
+    dir: 'simpleDir',
+    inspectLogs: logs => logs.split('\n').length === 3,
+  }));
+test('Not Verbose', () =>
+  performTest({
+    dir: 'simpleDir',
+    config: {
+      verbose: false,
+    },
+    inspectLogs: logs => logs.length === 0,
+  }));
+test('Verbose + Prefetched', () =>
+  performTest({
+    dir: 'simpleDir',
+    config: {
+      verbose: true,
+      showPrefetchedPaths: true,
+    },
+    inspectLogs: logs => logs.split('\n').length === 9,
+  }));
+test('Verbose full', () =>
+  performTest({
+    dir: 'simpleDir',
+    config: {
+      verbose: true,
+      showPrefetchedPaths: true,
+      showIgnoredPaths: true,
+    },
+    inspectLogs: logs => logs.split('\n').length === 11,
   }));
 
 test.run();
