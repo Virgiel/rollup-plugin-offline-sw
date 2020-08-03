@@ -14,7 +14,7 @@ experiment with service workers you are free to use and copy my code.**
 // package.json
 {
   "devDependencies": {
-    "rollup-plugin-offline-sw": "git+https://git@github.com/Virgiel/rollup-plugin-offline-sw.git#v0.2.0"
+    "rollup-plugin-offline-sw": "git+https://git@github.com/Virgiel/rollup-plugin-offline-sw.git#v0.3.0"
   }
 }
 ```
@@ -66,7 +66,7 @@ manager.onEvent = event => {
     console.log('The website is now accessible offline');
   } else if (event === WAITING) {
     // If there are losable states (e.g forms) it's a good practice to
-    // prompt a dialog to let the user choose when to skip waiting state
+    // prompt a dialog to let the user choose when to skip waiting
     manager.skipWaiting();
     status = WAITING;
   } else if (event === UPDATED) {
